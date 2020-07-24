@@ -37,11 +37,12 @@ if __name__ == "__main__":
     dense_layers = [400, 300, 200, 100]
     PIPELINE_BATCH = 64
     PIPELINE_BATCH_TEST = 250
-    TRAIN_FOLDER = "Data/Training_Frames/"
-    TEST_FOLDER = "Data/Test_Frames/"
+    TRAIN_FOLDER = "../../../mnt/disks/storage/Data/Training_Frames/"
+    TEST_FOLDER = "../../../mnt/disks/storage/Data/Test_Frames/"
     NUM_OF_TRAIN_IMAGES = len(os.listdir(TRAIN_FOLDER + "Right/")) + len(os.listdir(TRAIN_FOLDER + "Left/"))
     NUM_OF_TEST_IMAGES = len(os.listdir(TEST_FOLDER + "Right/")) + len(os.listdir(TEST_FOLDER + "Left/"))
     EPOCHS = NUM_OF_TRAIN_IMAGES / (PIPELINE_BATCH * 145)
+    es = tf.keras.callbacks.EarlyStopping(monitor="val_acc", patience=5, restore_best_weights=True)
     aug = ImageDataGenerator(width_shift_range=0.04,
                              height_shift_range=0.04,
                              zoom_range=0.2,
@@ -65,17 +66,13 @@ if __name__ == "__main__":
                                              batch_size=PIPELINE_BATCH_TEST,
                                              rescale=(144, 256),
                                              normalization_factor=1/255)
-    streaming_pipeline_test_pred = data_generator(input_folder=TEST_FOLDER,
-                                                  data_aumentation=None,
-                                                  batch_size=PIPELINE_BATCH,
-                                                  rescale=(144, 256),
-                                                  normalization_factor=1 / 255)
 
     history = model.fit(x=streaming_pipeline_train,
                         steps_per_epoch=145,
                         epochs=int(EPOCHS),
                         validation_data=streaming_pipeline_test,
-                        validation_steps=int(NUM_OF_TEST_IMAGES / PIPELINE_BATCH_TEST))
+                        validation_steps=int(NUM_OF_TEST_IMAGES / PIPELINE_BATCH_TEST),
+                        callbacks=[es])
 
     history_dict = history.history
     loss = history_dict["loss"]
@@ -89,6 +86,5 @@ if __name__ == "__main__":
     frame = pd.DataFrame(frame_list, columns=["loss", "acc", "val-loss", "val-acc"])
     frame.to_csv("History.csv")
 
-    predictions = model.predict(x=streaming_pipeline_test_pred, steps=2)
-    print(predictions)
+    model.save_weights("best_model_weights")
 
