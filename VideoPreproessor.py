@@ -35,10 +35,10 @@ def extract_frames_from_video(videopath, output_folder, rotate_90_clockwise=Fals
 
 if __name__ == "__main__":
     
-    for video in tqdm(os.listdir("Data/Raw_Videos/Test_Videos/")):
+    for video in tqdm(os.listdir("../../../mnt/disks/storage/Data/Raw_Videos/Test_Videos/")):
         hand_type = video.split("_")[0]
-        extract_frames_from_video(videopath=os.path.join("Data/Raw_Videos/Test_Videos", video),
-                                  output_folder="Data/Test_Frames/" + hand_type + "/",
+        extract_frames_from_video(videopath=os.path.join("../../../mnt/disks/storage/Data/Raw_Videos/Test_Videos", video),
+            output_folder="../../../mnt/disks/storage/Data/Test_Frames/" + hand_type + "/",
                                   rotate_90_clockwise=True,
                                   use_gray_scale=True,
                                   resize_dims=(288, 512),
