@@ -7,7 +7,7 @@ import pandas as pd
 
 
 def data_generator(input_folder, batch_size, normalization_factor=None, mode="train", data_aumentation=None,
-                   rescale=None):
+                   rescale=None, verbose=0):
     right_images = os.listdir(os.path.join(input_folder, "Right/"))
     left_images = os.listdir(os.path.join(input_folder, "Left/"))
     num_of_right_images = len(right_images)
@@ -15,6 +15,7 @@ def data_generator(input_folder, batch_size, normalization_factor=None, mode="tr
     right_index = 0
     left_index = 0
     right = True
+    print_first = False
 
     while True:
         images = []
@@ -28,6 +29,10 @@ def data_generator(input_folder, batch_size, normalization_factor=None, mode="tr
                 image = cv2.imread(os.path.join(input_folder, "Right/" + right_images[right_index]),
                                    cv2.IMREAD_GRAYSCALE)
                 labels.append(0)
+                if (not print_first) and (verbose == 1):
+                    print(right_images[right_index])
+                    print_first = True
+
                 right_index += 1
                 if right_index + 1 == num_of_right_images:  # IF WE HAVE GENERATED ALL THE IMAGES, RESTART
                     right_index = 0
@@ -35,6 +40,9 @@ def data_generator(input_folder, batch_size, normalization_factor=None, mode="tr
                 right = True
                 image = cv2.imread(os.path.join(input_folder, "Left/" + left_images[left_index]),
                                    cv2.IMREAD_GRAYSCALE)
+                if (not print_first) and (verbose == 1):
+                    print(left_images[left_index])
+                    print_first = True
                 left_index += 1
                 if left_index + 1 == num_of_left_images:
                     left_index = 0

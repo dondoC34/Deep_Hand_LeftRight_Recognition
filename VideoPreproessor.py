@@ -5,28 +5,37 @@ import numpy as np
 
 
 def extract_frames_from_video(videopath, output_folder, rotate_90_clockwise=False, use_gray_scale=False,
-                              resize_dims=None, label=None, shuffle=True):
+                              resize_dims=None, label=None, shuffle=True, acquisition_frame_rate=1):
     vid = cv2.VideoCapture(videopath)
     index = len(os.listdir(output_folder))
+    frame_rate_count = 0
+    acquire = True
     while vid.isOpened():
         ret, frame = vid.read()
         if ret:
-            if rotate_90_clockwise:
-                frame = cv2.rotate(frame, rotateCode=cv2.ROTATE_90_CLOCKWISE)
-            if use_gray_scale:
-                frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-            if resize_dims is not None:
-                frame = cv2.resize(frame, resize_dims)
+            if acquire:
+                if rotate_90_clockwise:
+                    frame = cv2.rotate(frame, rotateCode=cv2.ROTATE_90_CLOCKWISE)
+                if use_gray_scale:
+                    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+                if resize_dims is not None:
+                    frame = cv2.resize(frame, resize_dims)
 
-            if shuffle:
-                frame_name = str(np.random.uniform(0, 100000))
+                if shuffle:
+                    frame_name = str(np.random.uniform(0, 100000))
+                else:
+                    frame_name = str(index)
+                    index += 1
+                if label is not None:
+                    frame_name = frame_name + "_" + str(label)
+
+                cv2.imwrite(os.path.join(output_folder, frame_name) + ".jpg", frame)
+            frame_rate_count += 1
+            if frame_rate_count < acquisition_frame_rate:
+                acquire = False
             else:
-                frame_name = str(index)
-                index += 1
-            if label is not None:
-                frame_name = frame_name + "_" + str(label)
-
-            cv2.imwrite(os.path.join(output_folder, frame_name) + ".jpg", frame)
+                acquire = True
+                frame_rate_count = 0
         else:
             break
     vid.release()
