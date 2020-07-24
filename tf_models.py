@@ -1,7 +1,6 @@
 import tensorflow as tf
 from Data_Pipeline import data_generator
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-import json
 import os
 import warnings
 import pandas as pd
@@ -37,8 +36,8 @@ if __name__ == "__main__":
     dense_layers = [400, 300, 200, 100]
     PIPELINE_BATCH = 64
     PIPELINE_BATCH_TEST = 250
-    TRAIN_FOLDER = "../../../mnt/disks/storage/Data/Training_Frames/"
-    TEST_FOLDER = "../../../mnt/disks/storage/Data/Test_Frames/"
+    TRAIN_FOLDER = "Data/Training_Frames/"
+    TEST_FOLDER = "Data/Test_Frames/"
     NUM_OF_TRAIN_IMAGES = len(os.listdir(TRAIN_FOLDER + "Right/")) + len(os.listdir(TRAIN_FOLDER + "Left/"))
     NUM_OF_TEST_IMAGES = len(os.listdir(TEST_FOLDER + "Right/")) + len(os.listdir(TEST_FOLDER + "Left/"))
     EPOCHS = NUM_OF_TRAIN_IMAGES / (PIPELINE_BATCH * 145)
@@ -68,11 +67,10 @@ if __name__ == "__main__":
                                              normalization_factor=1/255)
 
     history = model.fit(x=streaming_pipeline_train,
-                        steps_per_epoch=145,
+                        steps_per_epoch=10,
                         epochs=int(EPOCHS),
                         validation_data=streaming_pipeline_test,
-                        validation_steps=int(NUM_OF_TEST_IMAGES / PIPELINE_BATCH_TEST),
-                        callbacks=[es])
+                        validation_steps=int(NUM_OF_TEST_IMAGES / PIPELINE_BATCH_TEST))
 
     history_dict = history.history
     loss = history_dict["loss"]
