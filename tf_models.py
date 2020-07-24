@@ -36,8 +36,8 @@ if __name__ == "__main__":
     dense_layers = [400, 300, 200, 100]
     PIPELINE_BATCH = 64
     PIPELINE_BATCH_TEST = 250
-    TRAIN_FOLDER = "Data/Training_Frames/"
-    TEST_FOLDER = "Data/Test_Frames/"
+    TRAIN_FOLDER = "../ssd/Training_Frames/"
+    TEST_FOLDER = "../ssd/Test_Frames/"
     NUM_OF_TRAIN_IMAGES = len(os.listdir(TRAIN_FOLDER + "Right/")) + len(os.listdir(TRAIN_FOLDER + "Left/"))
     NUM_OF_TEST_IMAGES = len(os.listdir(TEST_FOLDER + "Right/")) + len(os.listdir(TEST_FOLDER + "Left/"))
     EPOCHS = NUM_OF_TRAIN_IMAGES / (PIPELINE_BATCH * 145)
