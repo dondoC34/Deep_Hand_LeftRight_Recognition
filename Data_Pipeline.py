@@ -26,8 +26,7 @@ def data_generator(input_folder, batch_size, normalization_factor=None, mode="tr
             # THIS AVOID THE FACT THAT WE TRAIN THE CNN WITH ALL THE LEFT HANDS BEFORE THE RIGHT HANDS
             if right:
                 right = False
-                image = cv2.imread(os.path.join(input_folder, "Right/" + right_images[right_index]),
-                                   cv2.IMREAD_GRAYSCALE)
+                image = cv2.imread(os.path.join(input_folder, "Right/" + right_images[right_index]))
                 labels.append(0)
                 if (not print_first) and (verbose == 1):
                     print(right_images[right_index])
@@ -38,8 +37,7 @@ def data_generator(input_folder, batch_size, normalization_factor=None, mode="tr
                     right_index = 0
             else:
                 right = True
-                image = cv2.imread(os.path.join(input_folder, "Left/" + left_images[left_index]),
-                                   cv2.IMREAD_GRAYSCALE)
+                image = cv2.imread(os.path.join(input_folder, "Left/" + left_images[left_index]))
                 if (not print_first) and (verbose == 1):
                     print(left_images[left_index])
                     print_first = True
@@ -54,12 +52,12 @@ def data_generator(input_folder, batch_size, normalization_factor=None, mode="tr
 
         if (mode == "train") and (data_aumentation is not None):
             images = np.array(images)
-            images = images.reshape(batch_size, 256, 144, 1)
+            images = images.reshape(batch_size, 256, 144, 3)
             images, labels = next(data_aumentation.flow(np.array(images), labels, batch_size=batch_size))
             yield images, labels
         else:
             images = np.array(images)
-            images = images.reshape(batch_size, 256, 144, 1)
+            images = images.reshape(batch_size, 256, 144, 3)
             if normalization_factor is not None:
                 yield normalization_factor * images, labels
             else:
