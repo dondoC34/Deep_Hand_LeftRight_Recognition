@@ -1,0 +1,11 @@
+conv_part = [(50, 4, 4), (100, 3, 3), (150, 3, 3), (200, 3, 3), (300, 2, 2)]
+pooling layers in betweeen: (2, 2)
+PIPELINE_BATCH = 64
+PIPELINE_BATCH_TEST = 100
+EPOCH = 200
+early_stopping patience: 10
+metrics: acc, auc
+data_augmentation = width:0.05 height:0.05 zoom:0.2, no rotation no flip
+steps per epoch: 100
+steps per validation: NUM_OF_TEST_IMAGES / PIPELINE_BATCH_TEST
+rescaling: (256, 144)

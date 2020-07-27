@@ -38,7 +38,7 @@ def data_generator(input_folder, batch_size, normalization_factor=None, mode="tr
                     right_index = 0
             else:
                 right = True
-                image = cv2.imread(os.path.join(input_folder, "Left/" + left_images[left_index]))
+                image = cv2.imread(os.path.join(input_folder, "Left/" + left_images[left_index]), cv2.IMREAD_GRAYSCALE)
                 if (not print_first) and (verbose == 1):
                     print(left_images[left_index])
                     print_first = True
