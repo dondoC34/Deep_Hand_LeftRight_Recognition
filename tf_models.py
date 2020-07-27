@@ -1,6 +1,7 @@
 import tensorflow as tf
 from Data_Pipeline import data_generator
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.utils import plot_model
 import os
 import warnings
 import pandas as pd
@@ -59,7 +60,7 @@ def shapedNet(first_step_conv_layers, second_step_conv_layers, first_step_dense_
     for conv_layer in second_step_conv_layers[1:]:
         x_second_step_conv = tf.keras.layers.Conv2D(filters=conv_layer[0],
                                                     kernel_size=(conv_layer[1], conv_layer[2]))(x_second_step_conv)
-        if interpose_pooling_layers:
+        if interpose_pooling_layers and (second_step_conv_layers.index(conv_layer) < len(second_step_conv_layers) - 1):
             x_second_step_conv = tf.keras.layers.MaxPool2D(pool_size=(3, 3))(x_second_step_conv)
 
     x_second_step_conv = tf.keras.layers.Flatten()(x_second_step_conv)
@@ -82,8 +83,8 @@ if __name__ == "__main__":
     tf.compat.v1.disable_v2_behavior()
     tf.get_logger().setLevel('ERROR')
     first_conv_layers = [(32, 4, 4), (64, 3, 3)]
-    second_conv_layers = [(128, 3, 3), (256, 2, 2)]
-    first_dense_layers = [100, 200, 300]
+    second_conv_layers = [(128, 2, 2), (256, 2, 2)]
+    first_dense_layers = [500, 600, 700]
     second_dense_layers = [500, 600, 700]
     PIPELINE_BATCH = 64
     PIPELINE_BATCH_TEST = 100
@@ -107,6 +108,8 @@ if __name__ == "__main__":
                       input_shape=(256, 144, 1))
 
     model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy", "AUC"])
+    plot_model(model, to_file="hie.png", show_shapes=True, show_layer_names=True)
+    exit(2)
 
     streaming_pipeline_train = data_generator(input_folder=TRAIN_FOLDER,
                                               data_aumentation=aug,
