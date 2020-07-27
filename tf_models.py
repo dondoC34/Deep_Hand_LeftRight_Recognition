@@ -81,8 +81,10 @@ def shapedNet(first_step_conv_layers, second_step_conv_layers, first_step_dense_
 if __name__ == "__main__":
     tf.compat.v1.disable_v2_behavior()
     tf.get_logger().setLevel('ERROR')
-    conv_layers = [(50, 4, 4), (100, 3, 3), (150, 3, 3), (200, 3, 3), (300, 2, 2)]
-    dense_layers = [400, 500, 600, 700]
+    first_conv_layers = [(32, 4, 4), (64, 3, 3)]
+    second_conv_layers = [(128, 3, 3), (256, 2, 2)]
+    first_dense_layers = [100, 200, 300]
+    second_dense_layers = [500, 600, 700]
     PIPELINE_BATCH = 64
     PIPELINE_BATCH_TEST = 100
     TRAIN_FOLDER = "../ssd/Training_Frames/"
@@ -97,13 +99,15 @@ if __name__ == "__main__":
                              horizontal_flip=False,
                              rescale=1 / 255,
                              rotation_range=0)
-    model = leNet(conv_layers=conv_layers,
-                  dense_layers=dense_layers,
-                  interpose_pooling_layers=True,
-                  interpose_dropout=True,
-                  input_shape=(256, 144, 1))
+    model = shapedNet(first_step_conv_layers=first_conv_layers,
+                      second_step_conv_layers=second_conv_layers,
+                      first_step_dense_layers=first_dense_layers,
+                      final_dense_layers=second_dense_layers,
+                      interpose_pooling_layers=True,
+                      input_shape=(256, 144, 1))
 
     model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy", "AUC"])
+
     streaming_pipeline_train = data_generator(input_folder=TRAIN_FOLDER,
                                               data_aumentation=aug,
                                               batch_size=PIPELINE_BATCH,
@@ -115,7 +119,7 @@ if __name__ == "__main__":
                                              normalization_factor=1 / 255)
     history = model.fit(x=streaming_pipeline_train,
                         steps_per_epoch=100,
-                        epochs=int(EPOCHS),
+                        epochs=EPOCHS,
                         validation_data=streaming_pipeline_test,
                         validation_steps=int(NUM_OF_TEST_IMAGES / PIPELINE_BATCH_TEST),
                         callbacks=[es])
