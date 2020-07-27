@@ -7,13 +7,16 @@ import pandas as pd
 warnings.filterwarnings("ignore")
 
 
-def leNet(conv_layers, dense_layers, interpose_pooling_layers=False, input_shape=(256, 144, 3)):
+def leNet(conv_layers, dense_layers, interpose_pooling_layers=False, interpose_dropout=False, input_shape=(256, 144, 1)):
     model = tf.keras.Sequential()
     model.add(tf.keras.layers.Conv2D(filters=conv_layers[0][0],
                                      kernel_size=(conv_layers[0][1], conv_layers[0][2]),
                                      input_shape=input_shape))
     if interpose_pooling_layers:
         model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2)))
+
+    if interpose_dropout:
+        model.add(tf.keras.layers.Dropout(rate=0.2))
 
     for conv_layer in conv_layers[1:]:
         model.add(tf.keras.layers.Conv2D(filters=conv_layer[0],
@@ -25,6 +28,52 @@ def leNet(conv_layers, dense_layers, interpose_pooling_layers=False, input_shape
     for dense_layer in dense_layers:
         model.add(tf.keras.layers.Dense(dense_layer, activation="relu"))
     model.add(tf.keras.layers.Dense(1, activation="sigmoid"))
+
+    return model
+
+
+def shapedNet(first_step_conv_layers, second_step_conv_layers, first_step_dense_layers, final_dense_layers,
+              interpose_pooling_layers, input_shape=(256, 144, 1)):
+
+    model_input = tf.keras.Input(shape=input_shape)
+    x_input = tf.keras.layers.Conv2D(filters=first_step_conv_layers[0][0],
+                                     kernel_size=(first_step_conv_layers[0][1],
+                                                  first_step_conv_layers[0][2]))(model_input)
+    if interpose_pooling_layers:
+        x_input = tf.keras.layers.MaxPool2D(pool_size=(3, 3))(x_input)
+
+    for conv_layer in first_step_conv_layers[1:]:
+        x_input = tf.keras.layers.Conv2D(filters=conv_layer[0],
+                                         kernel_size=(conv_layer[1], conv_layer[2]))(x_input)
+        if interpose_pooling_layers:
+            x_input = tf.keras.layers.MaxPool2D(pool_size=(3, 3))(x_input)
+
+    x_first_dense = tf.keras.layers.Flatten()(x_input)
+    x_first_dense = tf.keras.layers.Dense(first_step_dense_layers[0], activation="relu")(x_first_dense)
+    x_second_step_conv = tf.keras.layers.Conv2D(filters=second_step_conv_layers[0][0],
+                                                kernel_size=(second_step_conv_layers[0][1],
+                                                             second_step_conv_layers[0][2]))(x_input)
+    if interpose_pooling_layers:
+        x_second_step_conv = tf.keras.layers.MaxPool2D(pool_size=(3, 3))(x_second_step_conv)
+
+    for conv_layer in second_step_conv_layers[1:]:
+        x_second_step_conv = tf.keras.layers.Conv2D(filters=conv_layer[0],
+                                                    kernel_size=(conv_layer[1], conv_layer[2]))(x_second_step_conv)
+        if interpose_pooling_layers:
+            x_second_step_conv = tf.keras.layers.MaxPool2D(pool_size=(3, 3))(x_second_step_conv)
+
+    x_second_step_conv = tf.keras.layers.Flatten()(x_second_step_conv)
+
+    for dense_layer in first_step_dense_layers[1:]:
+        x_first_dense = tf.keras.layers.Dense(dense_layer, activation="relu")(x_first_dense)
+
+    # MERGE THE TWO SIDES
+    x_final_dense = tf.keras.layers.Concatenate()([x_first_dense, x_second_step_conv])
+    for dense_layer in final_dense_layers:
+        x_final_dense = tf.keras.layers.Dense(dense_layer, activation="relu")(x_final_dense)
+
+    output = tf.keras.layers.Dense(1, activation="sigmoid")(x_final_dense)
+    model = tf.keras.Model(inputs=model_input, outputs=output)
 
     return model
 
@@ -46,26 +95,24 @@ if __name__ == "__main__":
                              height_shift_range=0.05,
                              zoom_range=0.25,
                              horizontal_flip=False,
-                             rescale=1/255,
+                             rescale=1 / 255,
                              rotation_range=0)
-
     model = leNet(conv_layers=conv_layers,
                   dense_layers=dense_layers,
-                  interpose_pooling_layers=True)
+                  interpose_pooling_layers=True,
+                  interpose_dropout=True,
+                  input_shape=(256, 144, 1))
 
     model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy", "AUC"])
-
     streaming_pipeline_train = data_generator(input_folder=TRAIN_FOLDER,
                                               data_aumentation=aug,
                                               batch_size=PIPELINE_BATCH,
                                               rescale=(144, 256))
-
     streaming_pipeline_test = data_generator(input_folder=TEST_FOLDER,
                                              data_aumentation=None,
                                              batch_size=PIPELINE_BATCH_TEST,
                                              rescale=(144, 256),
-                                             normalization_factor=1/255)
-
+                                             normalization_factor=1 / 255)
     history = model.fit(x=streaming_pipeline_train,
                         steps_per_epoch=100,
                         epochs=int(EPOCHS),
@@ -83,7 +130,8 @@ if __name__ == "__main__":
     for i in range(len(loss)):
         frame_list.append([x[i] for x in [loss, acc, val_loss, val_acc]])
     frame = pd.DataFrame(frame_list, columns=["loss", "acc", "val-loss", "val-acc"])
-    frame.to_csv("History_colored.csv")
+    frame.to_csv("Models_History/History_dropout.csv")
 
-    model.save_weights("best_model_color_weights")
+    model.save_weights("Model_Weights/best_model_weights_dropout")
+
 
