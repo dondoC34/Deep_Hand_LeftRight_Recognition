@@ -6,8 +6,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-def data_generator(input_folder, batch_size, normalization_factor=None, mode="train", data_aumentation=None,
+def data_generator(input_folder, batch_size, normalization_factor=None, mode="train", data_augmentation=None,
                    rescale=None, verbose=0):
+    
     right_images = os.listdir(os.path.join(input_folder, "Right/"))
     left_images = os.listdir(os.path.join(input_folder, "Left/"))
     num_of_right_images = len(right_images)
@@ -51,18 +52,18 @@ def data_generator(input_folder, batch_size, normalization_factor=None, mode="tr
                 image = cv2.resize(image, rescale)
             images.append(image)
 
-        if (mode == "train") and (data_aumentation is not None):
+        if (mode == "train") and (data_augmentation is not None):
             images = np.array(images)
             images = images.reshape(batch_size, 256, 144, 1)
-            images, labels = next(data_aumentation.flow(np.array(images), labels, batch_size=batch_size))
+            images, labels = next(data_augmentation.flow(np.array(images), labels, batch_size=batch_size))
             yield images, labels
         else:
             images = np.array(images)
             images = images.reshape(batch_size, 256, 144, 1)
             if normalization_factor is not None:
-                yield normalization_factor * images, labels
+                yield normalization_factor * images
             else:
-                yield images, labels
+                yield images
 
 
 if __name__ == "__main__":

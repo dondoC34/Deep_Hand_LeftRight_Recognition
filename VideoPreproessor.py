@@ -48,7 +48,7 @@ if __name__ == "__main__":
     for video in tqdm(os.listdir(videos_folder + "/")):
         hand_type = video.split("_")[0]
         extract_frames_from_video(videopath=os.path.join(videos_folder, video),
-            output_folder="../ssd/Training_Frames/" + hand_type + "/",
+                                  output_folder="../ssd/Training_Frames/" + hand_type + "/",
                                   rotate_90_clockwise=True,
                                   use_gray_scale=True,
                                   resize_dims=(288, 512),

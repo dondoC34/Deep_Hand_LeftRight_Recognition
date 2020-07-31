@@ -108,15 +108,13 @@ if __name__ == "__main__":
                       input_shape=(256, 144, 1))
 
     model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy", "AUC"])
-    plot_model(model, to_file="hie.png", show_shapes=True, show_layer_names=True)
-    exit(2)
 
     streaming_pipeline_train = data_generator(input_folder=TRAIN_FOLDER,
-                                              data_aumentation=aug,
+                                              data_augmentation=aug,
                                               batch_size=PIPELINE_BATCH,
                                               rescale=(144, 256))
     streaming_pipeline_test = data_generator(input_folder=TEST_FOLDER,
-                                             data_aumentation=None,
+                                             data_augmentation=None,
                                              batch_size=PIPELINE_BATCH_TEST,
                                              rescale=(144, 256),
                                              normalization_factor=1 / 255)
