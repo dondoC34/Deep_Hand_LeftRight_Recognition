@@ -86,6 +86,8 @@ if __name__ == "__main__":
     second_conv_layers = [(128, 2, 2), (256, 2, 2)]
     first_dense_layers = [500, 600, 700]
     second_dense_layers = [500, 600, 700]
+    conv_layers = [(50, 4, 4), (100, 3, 3), (150, 3, 3), (200, 3, 3), (300, 2, 2)]
+    dense_layers = [400, 500, 600, 700]
     PIPELINE_BATCH = 64
     PIPELINE_BATCH_TEST = 100
     TRAIN_FOLDER = "../ssd/Training_Frames/"
@@ -93,20 +95,24 @@ if __name__ == "__main__":
     NUM_OF_TRAIN_IMAGES = len(os.listdir(TRAIN_FOLDER + "Right/")) + len(os.listdir(TRAIN_FOLDER + "Left/"))
     NUM_OF_TEST_IMAGES = len(os.listdir(TEST_FOLDER + "Right/")) + len(os.listdir(TEST_FOLDER + "Left/"))
     EPOCHS = 200
-    es = tf.keras.callbacks.EarlyStopping(monitor="val_acc", patience=10, restore_best_weights=True)
+    es = tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=True)
     tensorboard = tf.keras.callbacks.TensorBoard(log_dir="Tensorboard_logs/")
     aug = ImageDataGenerator(width_shift_range=0.05,
                              height_shift_range=0.05,
                              zoom_range=0.25,
                              horizontal_flip=False,
                              rescale=1 / 255,
-                             rotation_range=0)
-    model = shapedNet(first_step_conv_layers=first_conv_layers,
-                      second_step_conv_layers=second_conv_layers,
-                      first_step_dense_layers=first_dense_layers,
-                      final_dense_layers=second_dense_layers,
-                      interpose_pooling_layers=True,
-                      input_shape=(256, 144, 1))
+                             rotation_range=180)
+    # model = shapedNet(first_step_conv_layers=first_conv_layers,
+    #                   second_step_conv_layers=second_conv_layers,
+    #                   first_step_dense_layers=first_dense_layers,
+    #                   final_dense_layers=second_dense_layers,
+    #                   interpose_pooling_layers=True,
+    #                   input_shape=(256, 144, 1))
+
+    model = leNet(conv_layers=conv_layers,
+                  dense_layers=dense_layers,
+                  interpose_pooling_layers=True)
 
     model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy", "AUC"])
 
@@ -136,8 +142,8 @@ if __name__ == "__main__":
     for i in range(len(loss)):
         frame_list.append([x[i] for x in [loss, acc, val_loss, val_acc]])
     frame = pd.DataFrame(frame_list, columns=["loss", "acc", "val-loss", "val-acc"])
-    frame.to_csv("Models_History/History_dropout.csv")
+    frame.to_csv("Models_History/History_esLoss_augRotation.csv")
 
-    model.save_weights("Model_Weights/best_model_weights_dropout")
+    model.save_weights("Model_Weights/esLoss_augRotation")
 
 
