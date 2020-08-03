@@ -94,6 +94,7 @@ if __name__ == "__main__":
     NUM_OF_TEST_IMAGES = len(os.listdir(TEST_FOLDER + "Right/")) + len(os.listdir(TEST_FOLDER + "Left/"))
     EPOCHS = 200
     es = tf.keras.callbacks.EarlyStopping(monitor="val_acc", patience=10, restore_best_weights=True)
+    tensorboard = tf.keras.callbacks.TensorBoard(log_dir="Tensorboard_logs/")
     aug = ImageDataGenerator(width_shift_range=0.05,
                              height_shift_range=0.05,
                              zoom_range=0.25,
@@ -123,7 +124,7 @@ if __name__ == "__main__":
                         epochs=EPOCHS,
                         validation_data=streaming_pipeline_test,
                         validation_steps=int(NUM_OF_TEST_IMAGES / PIPELINE_BATCH_TEST),
-                        callbacks=[es])
+                        callbacks=[es, tensorboard])
 
     history_dict = history.history
     loss = history_dict["loss"]
