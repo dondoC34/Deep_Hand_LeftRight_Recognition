@@ -57,13 +57,15 @@ def data_generator(input_folder, batch_size, normalization_factor=None, mode="tr
             images = images.reshape(batch_size, 256, 144, 1)
             images, labels = next(data_augmentation.flow(np.array(images), labels, batch_size=batch_size))
             yield images, labels
-        else:
+        elif mode == "eval":
             images = np.array(images)
             images = images.reshape(batch_size, 256, 144, 1)
             if normalization_factor is not None:
-                yield normalization_factor * images
+                yield normalization_factor * images, labels
             else:
-                yield images
+                yield images, labels
+        elif mode == "test":
+            pass
 
 
 if __name__ == "__main__":

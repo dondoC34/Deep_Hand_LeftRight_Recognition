@@ -22,7 +22,7 @@ def extract_frames_from_video(videopath, output_folder, rotate_90_clockwise=Fals
                     frame = cv2.resize(frame, resize_dims)
 
                 if shuffle:
-                    frame_name = str(np.random.uniform(0, 100000))
+                    frame_name = str(np.random.uniform(0, 1000000))
                 else:
                     frame_name = str(index)
                     index += 1
@@ -43,7 +43,7 @@ def extract_frames_from_video(videopath, output_folder, rotate_90_clockwise=Fals
 
 
 if __name__ == "__main__":
-    videos_folder = "../ssd/27-07-20/Training"
+    videos_folder = "../ssd/Siria"
     
     for video in tqdm(os.listdir(videos_folder + "/")):
         hand_type = video.split("_")[0]

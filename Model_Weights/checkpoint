@@ -1,2 +1,2 @@
-model_checkpoint_path: "best_model_weights_dropout"
-all_model_checkpoint_paths: "best_model_weights_dropout"
+model_checkpoint_path: "We_leNet_esLoss_avgpool"
+all_model_checkpoint_paths: "We_leNet_esLoss_avgpool"

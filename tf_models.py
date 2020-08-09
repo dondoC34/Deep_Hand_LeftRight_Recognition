@@ -14,7 +14,7 @@ def leNet(conv_layers, dense_layers, interpose_pooling_layers=False, interpose_d
                                      kernel_size=(conv_layers[0][1], conv_layers[0][2]),
                                      input_shape=input_shape))
     if interpose_pooling_layers:
-        model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2)))
+        model.add(tf.keras.layers.AvgPool2D(pool_size=(2, 2)))
 
     if interpose_dropout:
         model.add(tf.keras.layers.Dropout(rate=0.2))
@@ -23,7 +23,7 @@ def leNet(conv_layers, dense_layers, interpose_pooling_layers=False, interpose_d
         model.add(tf.keras.layers.Conv2D(filters=conv_layer[0],
                                          kernel_size=(conv_layer[1], conv_layer[2])))
         if interpose_pooling_layers:
-            model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2)))
+            model.add(tf.keras.layers.AvgPool2D(pool_size=(2, 2)))
 
     model.add(tf.keras.layers.Flatten())
     for dense_layer in dense_layers:
@@ -96,13 +96,13 @@ if __name__ == "__main__":
     NUM_OF_TEST_IMAGES = len(os.listdir(TEST_FOLDER + "Right/")) + len(os.listdir(TEST_FOLDER + "Left/"))
     EPOCHS = 200
     es = tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=True)
-    tensorboard = tf.keras.callbacks.TensorBoard(log_dir="Tensorboard_logs/")
+    tensorboard = tf.keras.callbacks.TensorBoard(log_dir="Tensorboard_logs\leNet_esLoss_avgpool")
     aug = ImageDataGenerator(width_shift_range=0.05,
                              height_shift_range=0.05,
                              zoom_range=0.25,
                              horizontal_flip=False,
                              rescale=1 / 255,
-                             rotation_range=180)
+                             rotation_range=0)
     # model = shapedNet(first_step_conv_layers=first_conv_layers,
     #                   second_step_conv_layers=second_conv_layers,
     #                   first_step_dense_layers=first_dense_layers,
@@ -119,12 +119,14 @@ if __name__ == "__main__":
     streaming_pipeline_train = data_generator(input_folder=TRAIN_FOLDER,
                                               data_augmentation=aug,
                                               batch_size=PIPELINE_BATCH,
-                                              rescale=(144, 256))
+                                              rescale=(144, 256),
+                                              mode="train")
     streaming_pipeline_test = data_generator(input_folder=TEST_FOLDER,
                                              data_augmentation=None,
                                              batch_size=PIPELINE_BATCH_TEST,
                                              rescale=(144, 256),
-                                             normalization_factor=1 / 255)
+                                             normalization_factor=1 / 255,
+                                             mode="eval")
     history = model.fit(x=streaming_pipeline_train,
                         steps_per_epoch=100,
                         epochs=EPOCHS,
@@ -142,8 +144,8 @@ if __name__ == "__main__":
     for i in range(len(loss)):
         frame_list.append([x[i] for x in [loss, acc, val_loss, val_acc]])
     frame = pd.DataFrame(frame_list, columns=["loss", "acc", "val-loss", "val-acc"])
-    frame.to_csv("Models_History/History_esLoss_augRotation.csv")
+    frame.to_csv("Models_History/Hist_leNet_esLoss.csv_avgpool")
 
-    model.save_weights("Model_Weights/esLoss_augRotation")
+    model.save_weights("Model_Weights/We_leNet_esLoss_avgpool")
 
 
