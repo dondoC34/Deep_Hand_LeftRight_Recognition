@@ -89,7 +89,7 @@ if __name__ == "__main__":
     first_dense_layers = [500, 600, 700]
     second_dense_layers = [500, 600, 700]
     conv_layers = [(50, 4, 4), (100, 3, 3), (150, 3, 3), (200, 3, 3), (300, 2, 2)]
-    dense_layers = [400, 500, 600]
+    dense_layers = [400, 500, 600, 700]
     PIPELINE_BATCH = 64
     PIPELINE_BATCH_TEST = 100
     TRAIN_FOLDER = "../ssd/Training_Frames/"
@@ -111,14 +111,14 @@ if __name__ == "__main__":
     #                   interpose_pooling_layers=True,
     #                   input_shape=(256, 144, 1))
 
-    for i in range(10):
+    for k in range(10):
         print("""
               #################################################################################
               #################################################################################
               ITERATION WITH DENSE NR: {}
               #################################################################################
               #################################################################################
-              """.format(len(dense_layers) - i))
+              """.format(4 - k))
         model = leNet(conv_layers=conv_layers,
                       dense_layers=dense_layers,
                       interpose_pooling_layers=True,
@@ -154,9 +154,9 @@ if __name__ == "__main__":
         for i in range(len(loss)):
             frame_list.append([x[i] for x in [loss, acc, val_loss, val_acc]])
         frame = pd.DataFrame(frame_list, columns=["loss", "acc", "val-loss", "val-acc"])
-        frame.to_csv("Models_History/Hist_leNet_esLoss_" + str(i) + "_dense.csv")
+        frame.to_csv("Models_History/Hist_leNet_esLoss_" + str(4 - k) + "_dense.csv")
 
-        model.save_weights("Model_Weights/We_leNet_esLoss_" + str(i) + "_dense")
+        model.save_weights("Model_Weights/We_leNet_esLoss_" + str(4 - k) + "_dense")
         try:
             dense_layers.pop(-1)
         except IndexError:

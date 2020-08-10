@@ -4,13 +4,19 @@ import cv2
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
 import pandas as pd
+import random
 
 
 def data_generator(input_folder, batch_size, normalization_factor=None, mode="train", data_augmentation=None,
-                   rescale=None, verbose=0):
+                   rescale=None, verbose=0, shuffle=True):
     
     right_images = os.listdir(os.path.join(input_folder, "Right/"))
     left_images = os.listdir(os.path.join(input_folder, "Left/"))
+
+    if shuffle:
+        random.shuffle(right_images)
+        random.shuffle(left_images)
+
     num_of_right_images = len(right_images)
     num_of_left_images = len(left_images)
     right_index = 0
