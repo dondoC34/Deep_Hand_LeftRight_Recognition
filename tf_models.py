@@ -12,7 +12,8 @@ def leNet(conv_layers, dense_layers, interpose_pooling_layers=False, interpose_d
     model = tf.keras.Sequential()
     model.add(tf.keras.layers.Conv2D(filters=conv_layers[0][0],
                                      kernel_size=(conv_layers[0][1], conv_layers[0][2]),
-                                     input_shape=input_shape))
+                                     input_shape=input_shape,
+                                     activation="relu"))
     if interpose_pooling_layers:
         model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2)))
 
@@ -21,7 +22,8 @@ def leNet(conv_layers, dense_layers, interpose_pooling_layers=False, interpose_d
 
     for conv_layer in conv_layers[1:]:
         model.add(tf.keras.layers.Conv2D(filters=conv_layer[0],
-                                         kernel_size=(conv_layer[1], conv_layer[2])))
+                                         kernel_size=(conv_layer[1], conv_layer[2]),
+                                         activation="relu"))
         if interpose_pooling_layers:
             model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2)))
 
@@ -111,56 +113,41 @@ if __name__ == "__main__":
     #                   interpose_pooling_layers=True,
     #                   input_shape=(256, 144, 1))
 
-    for k in range(10):
-        print("""
-              #################################################################################
-              #################################################################################
-              ITERATION WITH DENSE NR: {}
-              #################################################################################
-              #################################################################################
-              """.format(4 - k))
-        model = leNet(conv_layers=conv_layers,
-                      dense_layers=dense_layers,
-                      interpose_pooling_layers=True,
-                      input_shape=(256, 144, 1))
+    model = leNet(conv_layers=conv_layers,
+                  dense_layers=dense_layers,
+                  interpose_pooling_layers=True,
+                  input_shape=(256, 144, 1))
+    model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
 
-        model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
-
-        streaming_pipeline_train = data_generator(input_folder=TRAIN_FOLDER,
-                                                  data_augmentation=aug,
-                                                  batch_size=PIPELINE_BATCH,
-                                                  rescale=(144, 256),
-                                                  mode="train")
-        streaming_pipeline_test = data_generator(input_folder=TEST_FOLDER,
-                                                 data_augmentation=None,
-                                                 batch_size=PIPELINE_BATCH_TEST,
-                                                 rescale=(144, 256),
-                                                 normalization_factor=1 / 255,
-                                                 mode="eval")
-        history = model.fit(x=streaming_pipeline_train,
-                            steps_per_epoch=100,
-                            epochs=EPOCHS,
-                            validation_data=streaming_pipeline_test,
-                            validation_steps=int(NUM_OF_TEST_IMAGES / PIPELINE_BATCH_TEST),
-                            callbacks=[es])
-
-        history_dict = history.history
-        loss = history_dict["loss"]
-        acc = history_dict["acc"]
-        val_loss = history_dict["val_loss"]
-        val_acc = history_dict["val_acc"]
-        frame_list = []
-
-        for i in range(len(loss)):
-            frame_list.append([x[i] for x in [loss, acc, val_loss, val_acc]])
-        frame = pd.DataFrame(frame_list, columns=["loss", "acc", "val-loss", "val-acc"])
-        frame.to_csv("Models_History/Hist_leNet_esLoss_" + str(4 - k) + "_dense.csv")
-
-        model.save_weights("Model_Weights/We_leNet_esLoss_" + str(4 - k) + "_dense")
-        try:
-            dense_layers.pop(-1)
-        except IndexError:
-            break
-
+    streaming_pipeline_train = data_generator(input_folder=TRAIN_FOLDER,
+                                              data_augmentation=aug,
+                                              batch_size=PIPELINE_BATCH,
+                                              rescale=(144, 256),
+                                              mode="train",
+                                              shuffle=True)
+    streaming_pipeline_test = data_generator(input_folder=TEST_FOLDER,
+                                             data_augmentation=None,
+                                             batch_size=PIPELINE_BATCH_TEST,
+                                             rescale=(144, 256),
+                                             normalization_factor=1 / 255,
+                                             mode="eval",
+                                             shuffle=True)
+    history = model.fit(x=streaming_pipeline_train,
+                        steps_per_epoch=100,
+                        epochs=EPOCHS,
+                        validation_data=streaming_pipeline_test,
+                        validation_steps=int(NUM_OF_TEST_IMAGES / PIPELINE_BATCH_TEST),
+                        callbacks=[es])
+    history_dict = history.history
+    loss = history_dict["loss"]
+    acc = history_dict["acc"]
+    val_loss = history_dict["val_loss"]
+    val_acc = history_dict["val_acc"]
+    frame_list = []
+    for i in range(len(loss)):
+        frame_list.append([x[i] for x in [loss, acc, val_loss, val_acc]])
+    frame = pd.DataFrame(frame_list, columns=["loss", "acc", "val-loss", "val-acc"])
+    frame.to_csv("Models_History/Hist_leNet_esLoss_4_dense.csv")
+    model.save_weights("Model_Weights/We_leNet_esLoss_4_dense")
 
 
