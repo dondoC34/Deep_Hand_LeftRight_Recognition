@@ -131,7 +131,7 @@ if __name__ == "__main__":
                                              rescale=(144, 256),
                                              normalization_factor=1 / 255,
                                              mode="eval",
-                                             shuffle=True)
+                                             shuffle=False)
     history = model.fit(x=streaming_pipeline_train,
                         steps_per_epoch=100,
                         epochs=EPOCHS,

@@ -47,18 +47,18 @@ def extract_frames_from_video(videopath, output_folder, rotate_90_clockwise=Fals
 
 
 if __name__ == "__main__":
-    videos_folder = "../ssd/27-07-20/Training"
+    videos_folder = "../ssd/05-08-20/Test"
     
     for video in tqdm(os.listdir(videos_folder + "/")):
         hand_type = video.split("_")[0]
         extract_frames_from_video(videopath=os.path.join(videos_folder, video),
-                                  output_folder="../ssd/Training_Frames/" + hand_type + "/",
+                                  output_folder="../ssd/Test_Frames/" + hand_type + "/",
                                   rotate_90_clockwise=True,
                                   use_gray_scale=True,
                                   resize_dims=(288, 512),
                                   label=hand_type,
                                   shuffle=False,
-                                  acquisition_frame_rate=1)
+                                  acquisition_frame_rate=6)
 
 
 

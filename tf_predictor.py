@@ -13,7 +13,9 @@ if __name__ == "__main__":
                                              data_augmentation=None,
                                              batch_size=PIPELINE_BATCH_TEST,
                                              rescale=(144, 256),
-                                             normalization_factor=1/255)
+                                             normalization_factor=1/255,
+                                             shuffle=False,
+                                             mode="test")
 
     model = leNet(conv_layers=conv_layers,
                   dense_layers=dense_layers,
@@ -22,7 +24,7 @@ if __name__ == "__main__":
                   input_shape=(256, 144, 1))
 
     model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy", "AUC"])
-    model.load_weights("Model_Weights/best_model_weights_loss")
+    model.load_weights("Model_Weights/We_leNet_esLoss_4_dense")
 
     predictions = model.predict(x=streaming_pipeline_test,
                                 steps=int(NUM_OF_TEST_IMAGES / PIPELINE_BATCH_TEST))
@@ -37,7 +39,7 @@ if __name__ == "__main__":
     labeled_predictions = list(zip(predictions, labels))
     
     prediction_frame = pd.DataFrame(labeled_predictions, columns=["Prediction", "Class"])
-    prediction_frame.to_csv("Models_Predictions/loss_monitor_model_predictions.csv")
+    prediction_frame.to_csv("Models_Predictions/loss_monitor_model_predictions_dense4.csv", index=False)
 
     
 

@@ -71,7 +71,12 @@ def data_generator(input_folder, batch_size, normalization_factor=None, mode="tr
             else:
                 yield images, labels
         elif mode == "test":
-            pass
+            images = np.array(images)
+            images = images.reshape(batch_size, 256, 144, 1)
+            if normalization_factor is not None:
+                yield normalization_factor * images
+            else:
+                yield images
 
 
 if __name__ == "__main__":
