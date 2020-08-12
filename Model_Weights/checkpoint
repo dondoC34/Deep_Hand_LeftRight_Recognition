@@ -1,2 +1,2 @@
-model_checkpoint_path: "We_leNet_esLoss_4_dense"
-all_model_checkpoint_paths: "We_leNet_esLoss_4_dense"
+model_checkpoint_path: "We_leNet_esLoss_0_dense"
+all_model_checkpoint_paths: "We_leNet_esLoss_0_dense"

@@ -91,7 +91,7 @@ if __name__ == "__main__":
     first_dense_layers = [500, 600, 700]
     second_dense_layers = [500, 600, 700]
     conv_layers = [(50, 4, 4), (100, 3, 3), (150, 3, 3), (200, 3, 3), (300, 2, 2)]
-    dense_layers = [400, 500, 600, 700]
+    dense_layers = []
     PIPELINE_BATCH = 64
     PIPELINE_BATCH_TEST = 100
     TRAIN_FOLDER = "../ssd/Training_Frames/"
@@ -147,7 +147,7 @@ if __name__ == "__main__":
     for i in range(len(loss)):
         frame_list.append([x[i] for x in [loss, acc, val_loss, val_acc]])
     frame = pd.DataFrame(frame_list, columns=["loss", "acc", "val-loss", "val-acc"])
-    frame.to_csv("Models_History/Hist_leNet_esLoss_4_dense.csv")
-    model.save_weights("Model_Weights/We_leNet_esLoss_4_dense")
+    frame.to_csv("Models_History/Hist_leNet_esLoss_0_dense.csv")
+    model.save_weights("Model_Weights/We_leNet_esLoss_0_dense")
 
 
