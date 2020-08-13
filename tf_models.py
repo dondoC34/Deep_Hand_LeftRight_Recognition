@@ -90,8 +90,8 @@ if __name__ == "__main__":
     second_conv_layers = [(128, 2, 2), (256, 2, 2)]
     first_dense_layers = [500, 600, 700]
     second_dense_layers = [500, 600, 700]
-    conv_layers = [(50, 4, 4), (100, 3, 3), (150, 3, 3), (200, 3, 3), (300, 2, 2)]
-    dense_layers = []
+    conv_layers = [[100, 4, 4], [150, 3, 3], [200, 3, 3], [250, 3, 3], [350, 2, 2]]
+    dense_layers = [400, 500, 600, 700]
     PIPELINE_BATCH = 64
     PIPELINE_BATCH_TEST = 100
     TRAIN_FOLDER = "../ssd/Training_Frames/"
@@ -113,41 +113,45 @@ if __name__ == "__main__":
     #                   interpose_pooling_layers=True,
     #                   input_shape=(256, 144, 1))
 
-    model = leNet(conv_layers=conv_layers,
-                  dense_layers=dense_layers,
-                  interpose_pooling_layers=True,
-                  input_shape=(256, 144, 1))
-    model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
+    for _ in range(4):
+        model = leNet(conv_layers=conv_layers,
+                      dense_layers=dense_layers,
+                      interpose_pooling_layers=True,
+                      input_shape=(256, 144, 1))
+        model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
 
-    streaming_pipeline_train = data_generator(input_folder=TRAIN_FOLDER,
-                                              data_augmentation=aug,
-                                              batch_size=PIPELINE_BATCH,
-                                              rescale=(144, 256),
-                                              mode="train",
-                                              shuffle=True)
-    streaming_pipeline_test = data_generator(input_folder=TEST_FOLDER,
-                                             data_augmentation=None,
-                                             batch_size=PIPELINE_BATCH_TEST,
-                                             rescale=(144, 256),
-                                             normalization_factor=1 / 255,
-                                             mode="eval",
-                                             shuffle=False)
-    history = model.fit(x=streaming_pipeline_train,
-                        steps_per_epoch=100,
-                        epochs=EPOCHS,
-                        validation_data=streaming_pipeline_test,
-                        validation_steps=int(NUM_OF_TEST_IMAGES / PIPELINE_BATCH_TEST),
-                        callbacks=[es])
-    history_dict = history.history
-    loss = history_dict["loss"]
-    acc = history_dict["acc"]
-    val_loss = history_dict["val_loss"]
-    val_acc = history_dict["val_acc"]
-    frame_list = []
-    for i in range(len(loss)):
-        frame_list.append([x[i] for x in [loss, acc, val_loss, val_acc]])
-    frame = pd.DataFrame(frame_list, columns=["loss", "acc", "val-loss", "val-acc"])
-    frame.to_csv("Models_History/Hist_leNet_esLoss_0_dense.csv")
-    model.save_weights("Model_Weights/We_leNet_esLoss_0_dense")
+        streaming_pipeline_train = data_generator(input_folder=TRAIN_FOLDER,
+                                                  data_augmentation=aug,
+                                                  batch_size=PIPELINE_BATCH,
+                                                  rescale=(144, 256),
+                                                  mode="train",
+                                                  shuffle=True)
+        streaming_pipeline_test = data_generator(input_folder=TEST_FOLDER,
+                                                 data_augmentation=None,
+                                                 batch_size=PIPELINE_BATCH_TEST,
+                                                 rescale=(144, 256),
+                                                 normalization_factor=1 / 255,
+                                                 mode="eval",
+                                                 shuffle=False)
+        history = model.fit(x=streaming_pipeline_train,
+                            steps_per_epoch=100,
+                            epochs=EPOCHS,
+                            validation_data=streaming_pipeline_test,
+                            validation_steps=int(NUM_OF_TEST_IMAGES / PIPELINE_BATCH_TEST),
+                            callbacks=[es])
+        history_dict = history.history
+        loss = history_dict["loss"]
+        acc = history_dict["acc"]
+        val_loss = history_dict["val_loss"]
+        val_acc = history_dict["val_acc"]
+        frame_list = []
+        for i in range(len(loss)):
+            frame_list.append([x[i] for x in [loss, acc, val_loss, val_acc]])
+        frame = pd.DataFrame(frame_list, columns=["loss", "acc", "val-loss", "val-acc"])
+        frame.to_csv("Models_History/Hist_leNet_esLoss_4_dense_fm_nr_{}.csv".format(conv_layers[0][0]))
+
+        for k in range(len(conv_layers)):
+            conv_layers[k][0] += 50
+    # model.save_weights("Model_Weights/We_leNet_esLoss_0_dense")
 
 
