@@ -1,4 +1,4 @@
-# Non-Trivial Left/Right Hands Classification with Convolutional Neural Network
+# Non-Trivial Left/Right Hands Classification with CNNs
 This repository contains a personal project concerning **image classification with Convolutional Neural Networks**.  
 The dataset for this work comprises over 200000 images and can be found [here](https://drive.google.com/file/d/1pcRoUlLifvDpSJXE5a_bx3PY2R-yC6XF/view?usp=sharing).  
 We perform here a **binary classification of hands images**, discriminating between left and right hands. We want to observe the ability of CNN in performing this kind of task where both **the background continously varies** (not the classic white or mono-colored background) and **the hands assume different positions** (interactions with several objects, grasped objects, partialy hidden hands etc.).  
