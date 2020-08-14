@@ -106,18 +106,14 @@ if __name__ == "__main__":
                              horizontal_flip=False,
                              rescale=1 / 255,
                              rotation_range=0)
-    # model = shapedNet(first_step_conv_layers=first_conv_layers,
-    #                   second_step_conv_layers=second_conv_layers,
-    #                   first_step_dense_layers=first_dense_layers,
-    #                   final_dense_layers=second_dense_layers,
-    #                   interpose_pooling_layers=True,
-    #                   input_shape=(256, 144, 1))
 
     for _ in range(4):
-        model = leNet(conv_layers=conv_layers,
-                      dense_layers=dense_layers,
-                      interpose_pooling_layers=True,
-                      input_shape=(256, 144, 1))
+        model = shapedNet(first_step_conv_layers=first_conv_layers,
+                          second_step_conv_layers=second_conv_layers,
+                          first_step_dense_layers=first_dense_layers,
+                          final_dense_layers=second_dense_layers,
+                          interpose_pooling_layers=True,
+                          input_shape=(256, 144, 1))
         model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
 
         streaming_pipeline_train = data_generator(input_folder=TRAIN_FOLDER,
@@ -148,10 +144,10 @@ if __name__ == "__main__":
         for i in range(len(loss)):
             frame_list.append([x[i] for x in [loss, acc, val_loss, val_acc]])
         frame = pd.DataFrame(frame_list, columns=["loss", "acc", "val-loss", "val-acc"])
-        frame.to_csv("Models_History/Hist_leNet_esLoss_4_dense_fm_nr_{}.csv".format(conv_layers[0][0]))
+        frame.to_csv("Models_History/Hist_shNet_esLoss_{}_dense.csv".format(len(second_dense_layers)))
 
-        for k in range(len(conv_layers)):
-            conv_layers[k][0] += 50
+        second_dense_layers.pop(-1)
+
     # model.save_weights("Model_Weights/We_leNet_esLoss_0_dense")
 
 
