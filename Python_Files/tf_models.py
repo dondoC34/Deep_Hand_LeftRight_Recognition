@@ -1,5 +1,5 @@
 import tensorflow as tf
-from Python_Files.Data_Pipeline import data_generator
+from Data_Pipeline import data_generator
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import plot_model
 import os
