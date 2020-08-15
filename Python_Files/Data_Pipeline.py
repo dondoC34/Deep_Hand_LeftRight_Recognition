@@ -79,10 +79,4 @@ def data_generator(input_folder, batch_size, normalization_factor=None, mode="tr
                 yield images
 
 
-if __name__ == "__main__":
-    frame = pd.read_csv("Models_History/History.csv")
-    plt.plot(frame["loss"])
-    plt.plot(frame["val-loss"])
-    plt.show()
-
 

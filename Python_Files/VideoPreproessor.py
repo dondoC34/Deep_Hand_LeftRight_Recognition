@@ -47,7 +47,7 @@ def extract_frames_from_video(videopath, output_folder, rotate_90_clockwise=Fals
 
 
 if __name__ == "__main__":
-    videos_folder = "../ssd/05-08-20/Test"
+    videos_folder = "../ssd/05-08-20/Test"  # Folder on gcp
     
     for video in tqdm(os.listdir(videos_folder + "/")):
         hand_type = video.split("_")[0]
