@@ -93,11 +93,11 @@ if __name__ == "__main__":
     conv_layers = [[100, 4, 4], [150, 3, 3], [200, 3, 3], [250, 3, 3], [350, 2, 2]]
     dense_layers = [400, 500, 600, 700]
     PIPELINE_BATCH = 64
-    PIPELINE_BATCH_TEST = 100
+    PIPELINE_BATCH_VALIDATION = 100
     TRAIN_FOLDER = "../ssd/Training_Frames/"  # Folders on gcp
     TEST_FOLDER = "../ssd/Test_Frames/"
     NUM_OF_TRAIN_IMAGES = len(os.listdir(TRAIN_FOLDER + "Right/")) + len(os.listdir(TRAIN_FOLDER + "Left/"))
-    NUM_OF_TEST_IMAGES = len(os.listdir(TEST_FOLDER + "Right/")) + len(os.listdir(TEST_FOLDER + "Left/"))
+    NUM_OF_VAL_IMAGES = len(os.listdir(TEST_FOLDER + "Right/")) + len(os.listdir(TEST_FOLDER + "Left/"))
     EPOCHS = 200
     es = tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=True)
     aug = ImageDataGenerator(width_shift_range=0.05,
@@ -121,18 +121,18 @@ if __name__ == "__main__":
                                               rescale=(144, 256),
                                               mode="train",
                                               shuffle=True)
-    streaming_pipeline_test = data_generator(input_folder=TEST_FOLDER,
-                                             data_augmentation=None,
-                                             batch_size=PIPELINE_BATCH_TEST,
-                                             rescale=(144, 256),
-                                             normalization_factor=1 / 255,
-                                             mode="eval",
-                                             shuffle=False)
+    streaming_pipeline_validation = data_generator(input_folder=TEST_FOLDER,
+                                                   data_augmentation=None,
+                                                   batch_size=PIPELINE_BATCH_VALIDATION,
+                                                   rescale=(144, 256),
+                                                   normalization_factor=1 / 255,
+                                                   mode="eval",
+                                                   shuffle=False)
     history = model.fit(x=streaming_pipeline_train,
                         steps_per_epoch=100,
                         epochs=EPOCHS,
-                        validation_data=streaming_pipeline_test,
-                        validation_steps=int(NUM_OF_TEST_IMAGES / PIPELINE_BATCH_TEST),
+                        validation_data=streaming_pipeline_validation,
+                        validation_steps=int(NUM_OF_VAL_IMAGES / PIPELINE_BATCH_VALIDATION),
                         callbacks=[es])
     history_dict = history.history
     loss = history_dict["loss"]
